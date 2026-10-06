@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dexco | Planner de Falhas</title>
-    <meta name="app-version" content="10.1.2">
+    <meta name="app-version" content="10.1.10">
     <!-- Layout Dexco V10: motor PDF responsivo com alinhamento e quebra dinâmica -->
     <meta name="application-name" content="Dexco Planner de Falhas">
     <meta name="apple-mobile-web-app-title" content="Planner Falhas">
@@ -710,6 +710,11 @@
 
 
         /* V11 - Desktop permanente, métricas no menu e assinatura destacada */
+        .sidebar-year-selector{margin:8px 10px 0;padding:10px 11px;border:1px solid #e2e8e4;border-radius:14px;background:#fff;}
+        .sidebar-year-selector label{display:flex;align-items:center;gap:7px;margin-bottom:7px;color:#66716a;font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.45px;}
+        .sidebar-year-selector label i{color:var(--primary);}
+        .sidebar-year-selector select{width:100%;height:38px;padding:0 34px 0 11px;border:1px solid #dbe3de;border-radius:10px;background:#f6faf8;color:#1d2922;font-size:.82rem;font-weight:900;outline:none;cursor:pointer;}
+        .sidebar-year-selector select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,155,87,.09);background:#fff;}
         .sidebar-metrics{margin:8px 10px 10px;padding:12px;border:1px solid #e2e8e4;border-radius:14px;background:#f6faf8;}
         .sidebar-metrics-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;font-size:.68rem;font-weight:900;color:#334139;text-transform:uppercase;letter-spacing:.35px;}
         .sidebar-metrics-head i{color:var(--primary);margin-right:5px}.sidebar-metrics-head strong{color:var(--primary-dark);font-size:.82rem}
@@ -1005,6 +1010,115 @@
             }
         }
 
+    
+        /* WhatsApp modal - desktop amplo e responsivo */
+        #modal-whatsapp .modal-content {
+            width:min(900px, calc(100vw - 40px));
+            max-width:900px;
+            max-height:min(92vh, 900px);
+            overflow-y:auto;
+        }
+        #modal-whatsapp .wa-filter-grid {
+            display:grid;
+            grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);
+            gap:14px 16px;
+            padding:0 20px;
+        }
+        #modal-whatsapp .wa-filter-grid .input-group { margin:0; min-width:0; }
+        #modal-whatsapp .wa-filter-grid select { width:100%; min-width:0; }
+        #modal-whatsapp #wa-preview {
+            width:100%;
+            min-height:210px;
+            max-height:310px;
+            resize:vertical;
+        }
+        #modal-whatsapp .wa-action-row {
+            position:sticky;
+            bottom:0;
+            z-index:4;
+            padding:12px 0 2px;
+            background:var(--surface, #fff);
+            display:grid !important;
+            grid-template-columns:repeat(3, minmax(0, 1fr));
+            gap:10px !important;
+        }
+        #modal-whatsapp .wa-action-row .btn-block {
+            width:100%;
+            min-width:0;
+            min-height:58px;
+            margin:0;
+            padding:10px 12px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:9px;
+            white-space:nowrap;
+        }
+        @media (max-width:699px) {
+            #modal-whatsapp .modal-content {
+                width:calc(100vw - 20px);
+                max-width:none;
+                max-height:94vh;
+            }
+            #modal-whatsapp .wa-filter-grid {
+                grid-template-columns:1fr;
+                gap:10px;
+                padding:0 14px;
+            }
+            #modal-whatsapp #wa-preview { min-height:190px; max-height:260px; }
+            #modal-whatsapp .wa-action-row { gap:7px !important; }
+            #modal-whatsapp .wa-action-row .btn-block { padding-left:8px; padding-right:8px; font-size:.78rem; }
+        }
+
+        /* V10.1.3 - Painel superior compacto */
+        .filters-actions-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:9px; align-items:stretch; margin-bottom:0; }
+        .filters-actions-row .filter-grid { margin-bottom:0; }
+        .filters-actions-row .chip-foco { flex:none; min-width:205px; white-space:nowrap; }
+        @media (min-width:700px) {
+            .controls-panel { padding:12px 14px; }
+            .controls-heading { margin-bottom:8px; }
+            .period-selector-row { margin-bottom:8px; }
+            .search-bar-wrap { margin-bottom:8px; }
+            .filter-box select, .search-bar { min-height:40px; }
+            .chip-foco { min-height:40px; }
+            .tabs { margin-top:8px; }
+            .tab { min-height:39px; padding:7px 8px; }
+        }
+        @media (max-width:699px) {
+            .filters-actions-row { grid-template-columns:1fr; }
+            .filters-actions-row .filter-grid { grid-template-columns:1fr 1fr; }
+            .filters-actions-row .chip-foco { width:100%; min-width:0; }
+        }
+
+        /* V10.1.4 - pesquisa primeiro e controles principais uniformes */
+        .controls-search-first { margin:0 0 9px !important; }
+        .controls-inline-row { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; align-items:stretch; margin-bottom:9px; }
+        .controls-inline-row .control-inline-item { width:100%; min-width:0; min-height:42px; height:42px; margin:0 !important; border-radius:11px; }
+        .controls-inline-row .btn-periodo-anual { flex:none; padding:0 9px; font-size:.71rem; }
+        .controls-inline-row .time-nav { padding:3px; font-size:.72rem; justify-content:space-between; }
+        .controls-inline-row .time-nav button { width:28px; height:34px; flex:0 0 28px; padding:0; font-size:.78rem; }
+        .controls-inline-row #lbl-mes-ano { min-width:0; justify-content:center; gap:4px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:.68rem; }
+        .controls-inline-row #lbl-mes-ano::before { font-size:.68rem; }
+        .controls-inline-row .filter-box { position:relative; }
+        .controls-inline-row .filter-box select { height:42px; min-height:42px; padding:8px 28px 8px 31px; font-size:.69rem; text-overflow:ellipsis; }
+        .controls-inline-row .filter-box > i { left:10px; font-size:.72rem; }
+        .controls-inline-row .filter-box::after { right:9px; font-size:.56rem; }
+        .controls-inline-row .chip-foco { padding:7px 8px; font-size:.69rem; line-height:1.1; }
+        @media (max-width:760px) {
+            .controls-inline-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .controls-inline-row .control-inline-item { height:42px; }
+            .controls-inline-row .chip-foco { grid-column:1 / -1; }
+        }
+        @media (max-width:380px) {
+            .controls-inline-row { gap:6px; }
+            .controls-inline-row .btn-periodo-anual, .controls-inline-row .chip-foco, .controls-inline-row .filter-box select { font-size:.64rem; }
+            .controls-inline-row #lbl-mes-ano { font-size:.61rem; }
+        }
+        .wa-periodo-row{display:grid;grid-template-columns:1fr 1.35fr;gap:8px;align-items:stretch;}
+        .wa-periodo-btn,.wa-periodo-row select{min-height:50px;border:1px solid var(--border);border-radius:13px;background:var(--surface-soft);color:var(--ink);font-weight:800;padding:10px 12px;}
+        .wa-periodo-btn{cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
+        .wa-periodo-btn.active{background:var(--dark);color:#fff;border-color:var(--dark);}
+        .wa-periodo-row select.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,155,87,.10);background:#fff;}
     </style>
 </head>
 <body>
@@ -1131,6 +1245,11 @@
                         </ul>
                     </div>
 
+                    <div class="sidebar-year-selector">
+                        <label for="filtro-ano-base"><i class="fas fa-calendar-days"></i> Ano do Planner</label>
+                        <select id="filtro-ano-base" onchange="alterarAnoBase(this.value)" aria-label="Selecionar ano do Planner"></select>
+                    </div>
+
                     <div class="sidebar-metrics" id="sidebar-metrics">
                         <div class="sidebar-metrics-head"><span><i class="fas fa-chart-simple"></i> Métricas da seleção</span><strong id="sidebar-metric-percent">0%</strong></div>
                         <div class="sidebar-metrics-grid">
@@ -1175,38 +1294,34 @@
                     <span class="realtime-badge"><i class="fas fa-circle"></i> Tempo real</span>
                 </div>
 
-                <div class="period-selector-row">
-                    <button class="btn-periodo-anual" id="btn-periodo-anual" type="button" onclick="togglePeriodoAnual()" aria-pressed="false" title="Exibir o ano inteiro">
-                        <i class="fas fa-calendar-days"></i><span>Anual</span>
-                    </button>
-                    <div class="time-nav">
-                        <button id="btn-mes-anterior" onclick="mudarMes(-1)" aria-label="Mês anterior"><i class="fas fa-chevron-left"></i></button>
-                        <span id="lbl-mes-ano">AGOSTO 2026</span>
-                        <button id="btn-mes-proximo" onclick="mudarMes(1)" aria-label="Próximo mês"><i class="fas fa-chevron-right"></i></button>
-                    </div>
-                </div>
-
-                <div class="search-bar-wrap">
+                <div class="search-bar-wrap controls-search-first">
                     <i class="fas fa-magnifying-glass"></i>
                     <input type="text" class="search-bar" id="filtro-busca" placeholder="Pesquisar equipamento, número ou descrição" oninput="debounceBusca()">
                 </div>
 
-                <div class="filter-grid">
-                    <div class="filter-box">
+                <div class="controls-inline-row">
+                    <button class="btn-periodo-anual control-inline-item" id="btn-periodo-anual" type="button" onclick="togglePeriodoAnual()" aria-pressed="false" title="Exibir o ano inteiro">
+                        <i class="fas fa-calendar-days"></i><span>Anual</span>
+                    </button>
+                    <div class="time-nav control-inline-item">
+                        <button id="btn-mes-anterior" onclick="mudarMes(-1)" aria-label="Mês anterior"><i class="fas fa-chevron-left"></i></button>
+                        <span id="lbl-mes-ano">AGOSTO 2026</span>
+                        <button id="btn-mes-proximo" onclick="mudarMes(1)" aria-label="Próximo mês"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="filter-box control-inline-item">
                         <i class="fas fa-layer-group"></i>
                         <select id="filtro-area" onchange="aplicarFiltrosRenderizacao()" aria-label="Filtrar por macro-área">
                             <option value="">Todas as macro-áreas</option>
                         </select>
                     </div>
-                    <div class="filter-box">
+                    <div class="filter-box control-inline-item">
                         <i class="fas fa-users"></i>
                         <select id="filtro-colaborador" onchange="aplicarFiltrosRenderizacao()" aria-label="Filtrar por colaborador">
                             <option value="">Toda a equipe</option>
                         </select>
                     </div>
+                    <button class="chip-foco control-inline-item" id="btn-foco" onclick="toggleModoFoco()"><i class="fas fa-user-check"></i><span>Minhas ações</span></button>
                 </div>
-
-                <button class="chip-foco" id="btn-foco" onclick="toggleModoFoco()"><i class="fas fa-user-check"></i> Mostrar apenas minhas ações</button>
 
                 <div class="tabs" role="tablist" aria-label="Status das falhas">
                     <div class="tab active" id="tab-pendentes" onclick="mudarAba('pendente')" role="tab">
@@ -1369,6 +1484,7 @@
                 <h3><span class="modal-title-icon" style="background:#eaf9f0;color:#168f48;"><i class="fab fa-whatsapp"></i></span> Compartilhar relatório</h3>
                 <button class="btn-close" onclick="fecharModal('modal-whatsapp')" aria-label="Fechar"><i class="fas fa-xmark"></i></button>
             </div>
+            <div class="wa-filter-grid">
             <div class="input-group">
                 <label>Macro Área do relatório</label>
                 <select id="wa-macro-area" onchange="atualizarPreviewWA()"></select>
@@ -1380,27 +1496,30 @@
                 </select>
             </div>
             <div class="input-group">
-                <label>Incluir no texto</label>
-                <select id="wa-filtro" onchange="atualizarOpcoesPendenciasWA()">
-                    <option value="tudo">Tudo (Pendentes e Concluídas)</option>
-                    <option value="pendente">Apenas Pendentes/Em andamento</option>
-                    <option value="atrasada">Somente Atrasadas</option>
+                <label>Situação das ações</label>
+                <select id="wa-filtro" onchange="atualizarPreviewWA()">
+                    <option value="pendente">Pendentes</option>
+                    <option value="atrasada">Atrasadas</option>
+                    <option value="concluida">Concluídas</option>
+                    <option value="tudo">Todas</option>
                 </select>
             </div>
-            <div class="input-group" id="wa-anteriores-wrap" style="display:none;">
-                <label>Meses anteriores</label>
-                <select id="wa-incluir-anteriores" onchange="atualizarPreviewWA()">
-                    <option value="nao">Somente o mês vigente</option>
-                    <option value="sim">Incluir pendências de meses anteriores</option>
-                </select>
+            <div class="input-group">
+                <label>Período do relatório</label>
+                <div class="wa-periodo-row">
+                    <button type="button" id="wa-periodo-anual" class="wa-periodo-btn active" onclick="selecionarPeriodoWA('anual')"><i class="fas fa-calendar-days"></i> Anual</button>
+                    <select id="wa-periodo-mes" onchange="selecionarPeriodoWA('mes')"></select>
+                </div>
             </div>
             
+            </div>
+
             <div class="input-group">
                 <label><i class="fas fa-eye"></i> Pré-visualização do relatório</label>
                 <textarea id="wa-preview" readonly rows="8" style="background:var(--grafite); color:#f8fafc; font-family:monospace; font-size:0.75rem; border-radius:10px;"></textarea>
             </div>
             
-            <div style="display: flex; gap: 10px;">
+            <div class="wa-action-row" style="display: flex; gap: 10px;">
                 <button class="btn-block" style="background: #3b82f6; flex: 1;" onclick="copiarTextoWhatsApp()">
                     <i class="fas fa-copy"></i> Copiar
                 </button>
@@ -1448,6 +1567,7 @@
         
         let estadoApp = {
             mesAno: formatarMesAno(new Date()),
+            anoBase: String(new Date().getFullYear()),
             periodoAnual: false,
             area: '',
             apenasMinhas: false,
@@ -2080,11 +2200,46 @@
             return partes.join(' • ');
         }
 
+        async function carregarAnosDisponiveis() {
+            const select = document.getElementById('filtro-ano-base');
+            if (!select || !window.db || !window.getDocs) return;
+            const anos = new Set([String(new Date().getFullYear()), String(estadoApp.anoBase || '').trim()].filter(Boolean));
+            try {
+                const snapshot = await window.getDocs(window.collection(window.db, 'planner_falhas'));
+                snapshot.forEach(docSnap => {
+                    const d = docSnap.data() || {};
+                    const mesAno = String(d.mesAno || (d.dataFalha || '').slice(0,7));
+                    if (/^\d{4}-\d{2}$/.test(mesAno)) anos.add(mesAno.slice(0,4));
+                });
+            } catch (erro) {
+                console.warn('Não foi possível carregar todos os anos do histórico:', erro);
+            }
+            const lista = [...anos].filter(a => /^\d{4}$/.test(a)).sort((a,b) => Number(b)-Number(a));
+            select.innerHTML = lista.map(ano => `<option value="${ano}">${ano}</option>`).join('');
+            select.value = String(estadoApp.anoBase || new Date().getFullYear());
+        }
+
+        function alterarAnoBase(ano) {
+            const novoAno = String(ano || '').trim();
+            if (!/^\d{4}$/.test(novoAno) || novoAno === String(estadoApp.anoBase)) return;
+            estadoApp.anoBase = novoAno;
+            const partes = String(estadoApp.mesAno || '').split('-');
+            const mesAtual = /^\d{2}$/.test(partes[1] || '') ? partes[1] : String(new Date().getMonth()+1).padStart(2,'0');
+            estadoApp.mesAno = `${novoAno}-${mesAtual}`;
+            atualizarUIControlesTemporais();
+            ligarOuvintesBaseDados();
+            const select = document.getElementById('filtro-ano-base');
+            if (select) select.value = novoAno;
+        }
+
         function mudarMes(delta) {
             if (modoMinhasAcoesGlobalAtivo()) return;
             const [y, m] = estadoApp.mesAno.split('-');
             const date = new Date(parseInt(y, 10), parseInt(m, 10) - 1 + delta, 1);
             estadoApp.mesAno = formatarMesAno(date);
+            estadoApp.anoBase = String(date.getFullYear());
+            const selectAno = document.getElementById('filtro-ano-base');
+            if (selectAno) selectAno.value = estadoApp.anoBase;
             estadoApp.periodoAnual = false;
             atualizarUIControlesTemporais();
             ligarOuvintesBaseDados();
@@ -2429,7 +2584,7 @@
 
             if (!isDadosCarregados) renderizarUI(); 
 
-            const anoSelecionado = String(estadoApp.mesAno || '').slice(0,4);
+            const anoSelecionado = String(estadoApp.anoBase || estadoApp.mesAno || '').slice(0,4);
             let qFalhas;
             if (estadoApp.periodoAnual) {
                 qFalhas = window.query(
@@ -2531,13 +2686,13 @@
             
             const itensPendentes = modoFoco
                 ? obterItensSelecaoAtual()
-                : montarItensComSelecao(falhasFonte, acoesFonte, { statusFalha: 'pendente' });
+                : montarItensComSelecao(falhasFonte, acoesFonte, { statusFalha: 'pendente', somenteAcoesAtrasadas: false });
             const itensAtrasados = modoFoco
                 ? []
                 : montarItensComSelecao(falhasFonte, acoesFonte, { statusFalha: '', somenteAcoesAtrasadas: true, exigirAcoes: true });
             const itensConcluidos = modoFoco
                 ? []
-                : montarItensComSelecao(falhasFonte, acoesFonte, { statusFalha: 'concluida' });
+                : montarItensComSelecao(falhasFonte, acoesFonte, { statusFalha: 'concluida', somenteAcoesAtrasadas: false });
 
             document.getElementById('cont-pendentes').innerText = itensPendentes.length;
             document.getElementById('cont-atrasadas').innerText = itensAtrasados.length;
@@ -2668,7 +2823,7 @@
         }
 
         function atualizarMetricasMenu(){
-            const itens = obterItensSelecaoAtual({ statusFalha: '' });
+            const itens = obterItensSelecaoAtual({ statusFalha: '', somenteAcoesAtrasadas: false, somenteAcoesNaoConcluidas: false, exigirAcoes: Boolean(estadoApp.apenasMinhas || estadoApp.colaborador) });
             const acoes = itens.flatMap(item => item.acoes || []);
             const concluidas = acoes.filter(acaoEstaConcluida).length;
             const abertas = acoes.filter(acaoNaoConcluida).length;
@@ -3317,21 +3472,43 @@
                     selColaboradorWA.value = usuarioAtivo.email;
                 }
             }
-            if (selAreaWA) selAreaWA.value = '';
+            if (selAreaWA) selAreaWA.value = Object.keys(hierarquiaAreas).includes('Linha') ? 'Linha' : '';
             document.getElementById('wa-filtro').value = 'pendente';
-            document.getElementById('wa-incluir-anteriores').value = 'sim';
+            preencherMesesPeriodoWA();
+            selecionarPeriodoWA('anual', false);
             const btnPdfWA = document.getElementById('wa-btn-pdf');
             if (btnPdfWA) btnPdfWA.style.display = (usuarioAtivo?.nivel === 'master' || usuarioAtivo?.nivel === 'senior') ? 'flex' : 'none';
             atualizarOpcoesPendenciasWA();
             abrirModal('modal-whatsapp');
         }
 
+        let periodoWAModo = 'anual';
+
+        function preencherMesesPeriodoWA(){
+            const select = document.getElementById('wa-periodo-mes');
+            if (!select) return;
+            const ano = String(estadoApp.anoBase || estadoApp.mesAno || '').slice(0,4) || String(new Date().getFullYear());
+            const nomes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+            select.innerHTML = nomes.map((nome, i) => {
+                const valor = `${ano}-${String(i + 1).padStart(2,'0')}`;
+                return `<option value="${valor}">${nome} ${ano}</option>`;
+            }).join('');
+            select.value = normalizarMesAno(estadoApp.mesAno) || `${ano}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+        }
+
+        function selecionarPeriodoWA(modo, atualizar = true){
+            periodoWAModo = modo === 'mes' ? 'mes' : 'anual';
+            const btn = document.getElementById('wa-periodo-anual');
+            const select = document.getElementById('wa-periodo-mes');
+            if (btn) btn.classList.toggle('active', periodoWAModo === 'anual');
+            if (select) {
+                select.classList.toggle('active', periodoWAModo === 'mes');
+                select.setAttribute('aria-pressed', periodoWAModo === 'mes' ? 'true' : 'false');
+            }
+            if (atualizar) atualizarPreviewWA();
+        }
+
         function atualizarOpcoesPendenciasWA(){
-            const wrap = document.getElementById('wa-anteriores-wrap');
-            const filtro = document.getElementById('wa-filtro').value;
-            const mostrarAnteriores = (filtro === 'pendente' || filtro === 'atrasada') && !estadoApp.apenasMinhas;
-            if(wrap) wrap.style.display = mostrarAnteriores ? 'block' : 'none';
-            if(!mostrarAnteriores) document.getElementById('wa-incluir-anteriores').value = 'nao';
             atualizarPreviewWA();
         }
 
@@ -3352,9 +3529,11 @@
             );
         }
 
-        async function carregarPendenciasAnterioresWA(){
-            const snapFalhas = await window.getDocs(window.query(window.collection(window.db,'planner_falhas'), window.where('status','==','pendente')));
-            const snapAcoes = await window.getDocs(window.collection(window.db,'planner_acoes'));
+        async function carregarDadosRelatorioWA(){
+            const [snapFalhas, snapAcoes] = await Promise.all([
+                window.getDocs(window.collection(window.db,'planner_falhas')),
+                window.getDocs(window.collection(window.db,'planner_acoes'))
+            ]);
             const falhas=[];
             snapFalhas.forEach(docSnap=>falhas.push({id:docSnap.id,...docSnap.data()}));
             const acoes=[];
@@ -3381,28 +3560,38 @@
         }
 
         function prepararItensWhatsApp(itens, acoesFonte, opcoes = {}){
-            const somenteAcoesNaoConcluidas = Boolean(opcoes.somenteAcoesNaoConcluidas);
-            const exigirAcoesSelecionadas = Boolean(opcoes.exigirAcoesSelecionadas);
+            const filtro = String(opcoes.filtro || 'tudo');
+            const colaborador = String(opcoes.colaborador || '');
             const fonteAcoes = Array.isArray(acoesFonte) ? acoesFonte : [];
+            const exigirAcoesSelecionadas = Boolean(opcoes.exigirAcoesSelecionadas || colaborador);
 
             return (Array.isArray(itens) ? itens : [])
                 .map(item => {
                     const falhaId = item?.f?.id || '';
-                    const acoesCadastradas = fonteAcoes.filter(acao => acao.falhaId === falhaId);
-                    const acoesSelecionadasOriginais = Array.isArray(item?.acoes) ? item.acoes : [];
-                    const temAcaoNaoConcluida = acoesCadastradas.some(acaoNaoConcluida);
-                    const falhaDeveEntrar = !somenteAcoesNaoConcluidas || acoesCadastradas.length === 0 || temAcaoNaoConcluida;
+                    let acoesSelecionadas = fonteAcoes.filter(acao => acao.falhaId === falhaId);
 
+                    // Mesmo comportamento do filtro principal: primeiro responsável, depois situação.
+                    if (colaborador) {
+                        acoesSelecionadas = acoesSelecionadas.filter(acao => acaoPossuiResponsavel(acao, colaborador));
+                    }
+                    if (filtro === 'pendente') {
+                        acoesSelecionadas = acoesSelecionadas.filter(acaoNaoConcluida);
+                    } else if (filtro === 'atrasada') {
+                        acoesSelecionadas = acoesSelecionadas.filter(acaoEstaAtrasada);
+                    } else if (filtro === 'concluida') {
+                        acoesSelecionadas = acoesSelecionadas.filter(acaoEstaConcluida);
+                    }
+
+                    acoesSelecionadas = ordenarPorDataHoraCriacao(acoesSelecionadas);
                     return {
                         ...item,
-                        // O filtro pendente decide se a FALHA entra; dentro dela mostramos o plano completo.
-                        acoes: ordenarPorDataHoraCriacao(acoesCadastradas.length ? acoesCadastradas : acoesSelecionadasOriginais),
-                        totalAcoesCadastradas: acoesCadastradas.length,
-                        semAcoesCadastradas: acoesCadastradas.length === 0,
-                        falhaDeveEntrar
+                        acoes: acoesSelecionadas,
+                        totalAcoesCadastradas: acoesSelecionadas.length,
+                        semAcoesCadastradas: acoesSelecionadas.length === 0
                     };
                 })
-                .filter(item => item.falhaDeveEntrar && (!exigirAcoesSelecionadas || item.semAcoesCadastradas || item.acoes.some(acaoNaoConcluida)));
+                // Com colaborador ou filtro de situação, falha sem ação correspondente nunca aparece.
+                .filter(item => !exigirAcoesSelecionadas || item.acoes.length > 0);
         }
 
         function equipamentoRealParaRelatorio(valor){
@@ -3485,79 +3674,50 @@
 
         async function montarSelecaoCompartilhamentoWA(){
             const filtro = document.getElementById('wa-filtro')?.value || 'pendente';
-            const incluirAnteriores = document.getElementById('wa-incluir-anteriores')?.value === 'sim';
             const modoMinhas = Boolean(estadoApp.apenasMinhas);
             const area = document.getElementById('wa-macro-area')?.value || '';
             const colaborador = modoMinhas
                 ? (usuarioAtivo?.email || '')
                 : (document.getElementById('wa-colaborador')?.value || '');
             const busca = estadoApp.busca || '';
-            const possuiFiltroPessoa = Boolean(colaborador);
-            const somenteNaoConcluidas = filtro === 'pendente' || filtro === 'atrasada';
-            const statusRelatorio = filtro === 'concluida' ? 'concluida' : (somenteNaoConcluidas ? 'pendente' : '');
+            const mesSelecionado = document.getElementById('wa-periodo-mes')?.value || estadoApp.mesAno;
+            const anoSelecionado = String(estadoApp.anoBase || mesSelecionado || estadoApp.mesAno || '').slice(0,4);
 
-            // O WhatsApp sempre parte explicitamente do mês selecionado, mesmo se a tela estiver no modo Anual.
-            const falhasAtuais = obterFalhasFonteRenderizacao();
-            const acoesAtuais = obterAcoesFonteRenderizacao();
-            let itensBaseAtual = montarItensComSelecao(falhasAtuais, acoesAtuais, {
+            // O relatório usa uma fonte própria para que Anual/Mês funcione igualmente em
+            // Pendentes, Atrasadas, Concluídas e Todas, sem depender da aba aberta na tela.
+            const dados = await carregarDadosRelatorioWA();
+            let falhasPeriodo = dados.falhas.filter(falha => {
+                const mes = obterMesFalha(falha);
+                if (!mes) return false;
+                return periodoWAModo === 'anual' ? mes.startsWith(`${anoSelecionado}-`) : mes === mesSelecionado;
+            });
+
+            const itensBase = montarItensComSelecao(falhasPeriodo, dados.acoes, {
                 apenasMinhas: false,
                 area,
                 colaborador,
                 busca,
-                statusFalha: statusRelatorio,
-                filtrarMes: true,
+                statusFalha: '',
+                filtrarMes: false,
                 periodoAnual: false,
-                mesAno: estadoApp.mesAno,
+                mesAno: '',
                 somenteAcoesNaoConcluidas: false,
                 somenteAcoesAtrasadas: false,
                 exigirAcoes: false
             });
 
-            let itensSelecionados = prepararItensWhatsApp(itensBaseAtual, acoesAtuais, {
-                somenteAcoesNaoConcluidas: somenteNaoConcluidas,
-                exigirAcoesSelecionadas: somenteNaoConcluidas && possuiFiltroPessoa
+            // Primeiro responsável + situação; só depois a falha é aceita.
+            const itensSelecionados = prepararItensWhatsApp(itensBase, dados.acoes, {
+                filtro,
+                exigirAcoesSelecionadas: true,
+                colaborador
             });
 
-            // Para "Somente Atrasadas", exibimos exclusivamente as ações vencidas.
-            if (filtro === 'atrasada') itensSelecionados = filtrarItensSomenteAtrasadas(itensSelecionados, colaborador);
+            const periodoRelatorio = periodoWAModo === 'anual'
+                ? `Ano ${anoSelecionado}`
+                : lerTextoMesAno(mesSelecionado);
 
-            // Meses anteriores = mês vigente + anteriores. Não depende da aba visual atual.
-            if (somenteNaoConcluidas && incluirAnteriores && !modoMinhas) {
-                const dados = await carregarPendenciasAnterioresWA();
-                const itensAnterioresBase = montarItensComSelecao(dados.falhas, dados.acoes, {
-                    apenasMinhas: false,
-                    area,
-                    colaborador,
-                    busca,
-                    statusFalha: 'pendente',
-                    filtrarMes: false,
-                    periodoAnual: false,
-                    mesAno: '',
-                    somenteAcoesNaoConcluidas: false,
-                    somenteAcoesAtrasadas: false,
-                    exigirAcoes: false
-                });
-                let itensAnteriores = prepararItensWhatsApp(itensAnterioresBase, dados.acoes, {
-                    somenteAcoesNaoConcluidas: true,
-                    exigirAcoesSelecionadas: possuiFiltroPessoa
-                }).filter(item => {
-                    const mes = obterMesFalha(item.f);
-                    return mes && mes < estadoApp.mesAno;
-                });
-                if (filtro === 'atrasada') itensAnteriores = filtrarItensSomenteAtrasadas(itensAnteriores, colaborador);
-
-                const itensPorId = new Map();
-                [...itensSelecionados, ...itensAnteriores].forEach(item => itensPorId.set(item.f.id, item));
-                itensSelecionados = Array.from(itensPorId.values()).sort(compararPorDataHoraCriacao);
-            }
-
-            const periodoRelatorio = modoMinhas
-                ? 'Todos os meses'
-                : (somenteNaoConcluidas && incluirAnteriores
-                    ? `Todos os meses até ${lerTextoMesAno(estadoApp.mesAno)}`
-                    : lerTextoMesAno(estadoApp.mesAno));
-
-            return { itensSelecionados, filtro, incluirAnteriores, modoMinhas, area, colaborador, busca, periodoRelatorio };
+            return { itensSelecionados, filtro, modoMinhas, area, colaborador, busca, periodoRelatorio, periodoWAModo, mesSelecionado, anoSelecionado };
         }
 
         async function gerarTextoRelatorio(){
@@ -3642,7 +3802,26 @@
         async function enviarWhatsApp() {
             const txt = document.getElementById('wa-preview').value;
             if(!txt || txt.includes("Nenhum registro")) return showToast('Sem dados para enviar.', true);
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`,'_blank');
+
+            // Em celulares/PWAs, usa a folha nativa de compartilhamento.
+            // Ao escolher o WhatsApp, o próprio app abre a seleção de conversa/grupo.
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Ações e Falhas DEXCO',
+                        text: txt
+                    });
+                    return;
+                } catch (erroCompartilhamento) {
+                    if (erroCompartilhamento?.name === 'AbortError') return;
+                    console.warn('Compartilhamento nativo indisponível; usando WhatsApp Web.', erroCompartilhamento);
+                }
+            }
+
+            // Fallback para desktop/navegadores sem Web Share API.
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`;
+            const janela = window.open(url, '_blank', 'noopener,noreferrer');
+            if (!janela) window.location.href = url;
         }
 
         // MOTOR PDF RESPONSIVO - LAYOUT DINÂMICO V10
@@ -4784,26 +4963,52 @@
                     ? 'todos-os-meses'
                     : estadoApp.mesAno;
                 const fileName = `Dexco_Relatorio_Executivo_${referenciaArquivo}.pdf`;
-                const pdfBlob = doc.output('blob');
-                const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                // V10.1.10: gravação binária robusta no desktop.
+                // O ArrayBuffer sai diretamente do jsPDF e é escrito byte a byte no arquivo escolhido.
+                const pdfArrayBuffer = doc.output('arraybuffer');
+                const pdfBytes = new Uint8Array(pdfArrayBuffer);
+                const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const ehDispositivoMovel = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '')
+                    || (navigator.maxTouchPoints > 1 && Math.min(window.innerWidth, window.innerHeight) < 900);
+
+                if (!ehDispositivoMovel && typeof window.showSaveFilePicker === 'function') {
                     try {
-                        await navigator.share({
-                            files: [file],
-                            title: 'Relatório Executivo Dexco'
+                        const arquivoDestino = await window.showSaveFilePicker({
+                            suggestedName: fileName,
+                            types: [{ description: 'Documento PDF', accept: { 'application/pdf': ['.pdf'] } }]
                         });
-                    } catch (erroCompartilhamento) {
-                        if (erroCompartilhamento?.name !== 'AbortError') {
-                            console.warn('Compartilhamento não concluído; iniciando download.', erroCompartilhamento);
-                            doc.save(fileName);
-                        }
+                        const gravador = await arquivoDestino.createWritable();
+                        await gravador.write({ type: 'write', position: 0, data: pdfBytes });
+                        await gravador.truncate(pdfBytes.byteLength);
+                        await gravador.close();
+                        showToast('PDF salvo na pasta selecionada.');
+                        return;
+                    } catch (erroSalvarPDF) {
+                        if (erroSalvarPDF?.name === 'AbortError') return;
+                        console.warn('Seletor Salvar como indisponível; usando download.', erroSalvarPDF);
+                        doc.save(fileName);
+                        showToast('Não foi possível abrir Salvar como. PDF salvo em Downloads.');
+                        return;
                     }
-                } else {
-                    doc.save(fileName);
                 }
 
-                showToast('PDF gerado com sucesso.');
+                if (ehDispositivoMovel && navigator.share && typeof File !== 'undefined') {
+                    try {
+                        const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+                        if (!navigator.canShare || navigator.canShare({ files: [pdfFile] })) {
+                            await navigator.share({ title: 'Relatório DEXCO', text: 'Relatório de Ações e Falhas DEXCO', files: [pdfFile] });
+                            showToast('PDF gerado. Escolha onde deseja salvar ou enviar.');
+                            return;
+                        }
+                    } catch (erroCompartilhamentoPDF) {
+                        if (erroCompartilhamentoPDF?.name === 'AbortError') return;
+                        console.warn('Compartilhamento nativo do PDF indisponível; usando download.', erroCompartilhamentoPDF);
+                    }
+                }
+
+                doc.save(fileName);
+                showToast('PDF salvo em Downloads.');
             } catch (erro) {
                 console.error('Erro ao gerar o relatório PDF:', erro);
                 showToast('Não foi possível gerar o PDF. Verifique os dados e tente novamente.', true);
@@ -4855,6 +5060,10 @@
                 }).catch(error => console.warn('Service Worker não registado:', error));
             }
         };
-    </script>
+    
+        window.addEventListener('load', () => {
+            setTimeout(() => carregarAnosDisponiveis(), 1200);
+        });
+</script>
 </body>
 </html>
