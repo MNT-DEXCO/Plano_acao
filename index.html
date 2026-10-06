@@ -500,6 +500,16 @@
         .realtime-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 9px; border-radius:999px; background:var(--primary-soft); color:var(--primary-dark); font-size:.65rem; font-weight:900; white-space:nowrap; }
         .realtime-badge i { font-size:.45rem; animation:pulseLive 1.6s infinite; }
         @keyframes pulseLive { 0%,100%{opacity:.35;transform:scale(.85)} 50%{opacity:1;transform:scale(1.2)} }
+        .period-selector-row { display:flex; gap:9px; align-items:stretch; margin:0 0 12px; }
+        .period-selector-row .time-nav { flex:1 1 auto; min-width:0; margin:0; }
+        .btn-periodo-anual {
+            flex:0 0 34%; min-width:104px; border:1px solid var(--border); border-radius:14px; background:#f5f7f8;
+            color:#59636c; font-size:.76rem; font-weight:900; letter-spacing:.45px; cursor:pointer;
+            display:flex; align-items:center; justify-content:center; gap:7px; transition:.18s ease;
+        }
+        .btn-periodo-anual:hover { background:#fff; color:var(--dark); box-shadow:0 4px 12px rgba(0,0,0,.07); }
+        .btn-periodo-anual.active { background:var(--dark); color:#fff; border-color:var(--dark); box-shadow:0 5px 15px rgba(0,0,0,.12); }
+        .btn-periodo-anual:disabled { opacity:.42; cursor:not-allowed; pointer-events:none; }
         .time-nav {
             margin:0 0 12px; padding:6px; border:1px solid var(--border); border-radius:14px; background:#f5f7f8;
             font-size:.98rem; letter-spacing:.3px;
@@ -533,9 +543,17 @@
         .tab-count { min-width:23px; height:23px; display:inline-grid; place-items:center; padding:0 6px; border-radius:999px; background:#dce2e6; color:#4c555d; font-size:.68rem; }
         .tab.active { color:var(--ink); box-shadow:0 5px 15px rgba(0,0,0,.07); }
         #tab-pendentes.active i { color:var(--danger); }
+        #tab-atrasadas.active i { color:#b42318; }
         #tab-concluidas.active i { color:var(--primary); }
         #tab-pendentes.active .tab-count { background:var(--danger-soft); color:var(--danger); }
+        #tab-atrasadas.active .tab-count { background:#fde8e6; color:#b42318; }
         #tab-concluidas.active .tab-count { background:var(--primary-soft); color:var(--primary-dark); }
+        @media (max-width:560px) {
+            .period-selector-row { gap:7px; }
+            .btn-periodo-anual { flex-basis:30%; min-width:88px; font-size:.68rem; padding:0 8px; }
+            .tabs .tab { gap:4px; padding-left:5px; padding-right:5px; font-size:.69rem; }
+            .tabs .tab-count { min-width:21px; height:21px; padding:0 5px; }
+        }
 
 
         /* V6: painel de filtros com rolagem normal e modo Minhas Acoes global */
@@ -1120,6 +1138,8 @@
                             <div><strong id="sidebar-metric-acoes">0</strong><span>Ações</span></div>
                             <div><strong id="sidebar-metric-abertas">0</strong><span>Não concluídas</span></div>
                             <div><strong id="sidebar-metric-andamento">0</strong><span>Em andamento</span></div>
+                            <div><strong id="sidebar-metric-atrasadas">0</strong><span>Atrasadas</span></div>
+                            <div><strong id="sidebar-metric-concluidas">0</strong><span>Concluídas</span></div>
                         </div>
                         <div class="sidebar-metrics-progress"><div id="sidebar-metric-progress"></div></div>
                         <small id="sidebar-metric-caption">0 de 0 ações concluídas</small>
@@ -1155,10 +1175,15 @@
                     <span class="realtime-badge"><i class="fas fa-circle"></i> Tempo real</span>
                 </div>
 
-                <div class="time-nav">
-                    <button id="btn-mes-anterior" onclick="mudarMes(-1)" aria-label="Mês anterior"><i class="fas fa-chevron-left"></i></button>
-                    <span id="lbl-mes-ano">AGOSTO 2026</span>
-                    <button id="btn-mes-proximo" onclick="mudarMes(1)" aria-label="Próximo mês"><i class="fas fa-chevron-right"></i></button>
+                <div class="period-selector-row">
+                    <button class="btn-periodo-anual" id="btn-periodo-anual" type="button" onclick="togglePeriodoAnual()" aria-pressed="false" title="Exibir o ano inteiro">
+                        <i class="fas fa-calendar-days"></i><span>Anual</span>
+                    </button>
+                    <div class="time-nav">
+                        <button id="btn-mes-anterior" onclick="mudarMes(-1)" aria-label="Mês anterior"><i class="fas fa-chevron-left"></i></button>
+                        <span id="lbl-mes-ano">AGOSTO 2026</span>
+                        <button id="btn-mes-proximo" onclick="mudarMes(1)" aria-label="Próximo mês"><i class="fas fa-chevron-right"></i></button>
+                    </div>
                 </div>
 
                 <div class="search-bar-wrap">
@@ -1186,6 +1211,9 @@
                 <div class="tabs" role="tablist" aria-label="Status das falhas">
                     <div class="tab active" id="tab-pendentes" onclick="mudarAba('pendente')" role="tab">
                         <i class="fas fa-clock"></i><span>Pendentes</span><span class="tab-count" id="cont-pendentes">0</span>
+                    </div>
+                    <div class="tab" id="tab-atrasadas" onclick="mudarAba('atrasada')" role="tab">
+                        <i class="fas fa-triangle-exclamation"></i><span>Atrasadas</span><span class="tab-count" id="cont-atrasadas">0</span>
                     </div>
                     <div class="tab" id="tab-concluidas" onclick="mudarAba('concluida')" role="tab">
                         <i class="fas fa-circle-check"></i><span>Concluídas</span><span class="tab-count" id="cont-concluidas">0</span>
@@ -1346,10 +1374,17 @@
                 <select id="wa-macro-area" onchange="atualizarPreviewWA()"></select>
             </div>
             <div class="input-group">
+                <label>Colaborador</label>
+                <select id="wa-colaborador" onchange="atualizarPreviewWA()">
+                    <option value="">Toda a equipe</option>
+                </select>
+            </div>
+            <div class="input-group">
                 <label>Incluir no texto</label>
                 <select id="wa-filtro" onchange="atualizarOpcoesPendenciasWA()">
                     <option value="tudo">Tudo (Pendentes e Concluídas)</option>
                     <option value="pendente">Apenas Pendentes/Em andamento</option>
+                    <option value="atrasada">Somente Atrasadas</option>
                 </select>
             </div>
             <div class="input-group" id="wa-anteriores-wrap" style="display:none;">
@@ -1413,6 +1448,7 @@
         
         let estadoApp = {
             mesAno: formatarMesAno(new Date()),
+            periodoAnual: false,
             area: '',
             apenasMinhas: false,
             colaborador: '',
@@ -1934,31 +1970,39 @@
                 ? String(opcoes.colaborador || '')
                 : String(apenasMinhas ? (usuarioAtivo?.email || '') : (estadoApp.colaborador || ''));
             const busca = temOpcao('busca') ? String(opcoes.busca || '').trim().toLowerCase() : String(estadoApp.busca || '').trim().toLowerCase();
+            const abaAtual = String(apenasMinhas ? '' : (estadoApp.abaAtiva || ''));
             const statusFalha = temOpcao('statusFalha')
                 ? String(opcoes.statusFalha || '')
-                : String(apenasMinhas ? '' : (estadoApp.abaAtiva || ''));
+                : (abaAtual === 'atrasada' ? '' : abaAtual);
             const mesAno = temOpcao('mesAno')
                 ? String(opcoes.mesAno || '')
                 : String(apenasMinhas ? '' : (estadoApp.mesAno || ''));
-            const filtrarMes = temOpcao('filtrarMes') ? Boolean(opcoes.filtrarMes) : !apenasMinhas;
+            const periodoAnual = temOpcao('periodoAnual') ? Boolean(opcoes.periodoAnual) : Boolean(!apenasMinhas && estadoApp.periodoAnual);
+            const anoSelecionado = String(mesAno || '').slice(0,4);
+            const filtrarMes = temOpcao('filtrarMes') ? Boolean(opcoes.filtrarMes) : (!apenasMinhas && !periodoAnual);
             const somenteAcoesNaoConcluidas = temOpcao('somenteAcoesNaoConcluidas')
                 ? Boolean(opcoes.somenteAcoesNaoConcluidas)
                 : apenasMinhas;
+            const somenteAcoesAtrasadas = temOpcao('somenteAcoesAtrasadas')
+                ? Boolean(opcoes.somenteAcoesAtrasadas)
+                : (!apenasMinhas && abaAtual === 'atrasada');
             const exigirAcoes = temOpcao('exigirAcoes')
                 ? Boolean(opcoes.exigirAcoes)
-                : Boolean(apenasMinhas || colaborador);
+                : Boolean(apenasMinhas || colaborador || somenteAcoesAtrasadas);
 
             const falhas = Array.isArray(falhasFonte) ? falhasFonte : [];
             const acoes = Array.isArray(acoesFonte) ? acoesFonte : [];
 
             let itens = falhas.reduce((resultado, falha) => {
                 if (area && String(falha.area || '') !== area) return resultado;
+                if (periodoAnual && anoSelecionado && !String(obterMesFalha(falha) || '').startsWith(anoSelecionado + '-')) return resultado;
                 if (filtrarMes && mesAno && obterMesFalha(falha) !== mesAno) return resultado;
                 if (statusFalha && String(falha.status || '') !== statusFalha) return resultado;
 
                 let acoesDaFalha = acoes.filter(acao => acao.falhaId === falha.id);
                 if (colaborador) acoesDaFalha = acoesDaFalha.filter(acao => acaoPossuiResponsavel(acao, colaborador));
                 if (somenteAcoesNaoConcluidas) acoesDaFalha = acoesDaFalha.filter(acaoNaoConcluida);
+                if (somenteAcoesAtrasadas) acoesDaFalha = acoesDaFalha.filter(acaoEstaAtrasada);
                 acoesDaFalha = ordenarPorDataHoraCriacao(acoesDaFalha);
 
                 if (exigirAcoes && acoesDaFalha.length === 0) return resultado;
@@ -2023,11 +2067,11 @@
 
         function descreverSelecaoAtual() {
             const partes = [];
-            partes.push(estadoApp.apenasMinhas ? 'Todos os meses' : lerTextoMesAno(estadoApp.mesAno));
+            partes.push(estadoApp.apenasMinhas ? 'Todos os meses' : (estadoApp.periodoAnual ? `Ano ${String(estadoApp.mesAno).slice(0,4)}` : lerTextoMesAno(estadoApp.mesAno)));
             partes.push(
                 estadoApp.apenasMinhas
                     ? 'Minhas ações não concluídas'
-                    : (estadoApp.abaAtiva === 'concluida' ? 'Falhas concluídas' : 'Falhas pendentes')
+                    : (estadoApp.abaAtiva === 'concluida' ? 'Falhas concluídas' : (estadoApp.abaAtiva === 'atrasada' ? 'Ações atrasadas' : 'Falhas pendentes'))
             );
             if (estadoApp.area) partes.push(`Área: ${estadoApp.area}`);
             const colaboradorNome = obterNomeColaboradorSelecionado();
@@ -2041,6 +2085,14 @@
             const [y, m] = estadoApp.mesAno.split('-');
             const date = new Date(parseInt(y, 10), parseInt(m, 10) - 1 + delta, 1);
             estadoApp.mesAno = formatarMesAno(date);
+            estadoApp.periodoAnual = false;
+            atualizarUIControlesTemporais();
+            ligarOuvintesBaseDados();
+        }
+
+        function togglePeriodoAnual() {
+            if (modoMinhasAcoesGlobalAtivo()) return;
+            estadoApp.periodoAnual = !estadoApp.periodoAnual;
             atualizarUIControlesTemporais();
             ligarOuvintesBaseDados();
         }
@@ -2053,18 +2105,27 @@
             const btnAnterior = document.getElementById('btn-mes-anterior');
             const btnProximo = document.getElementById('btn-mes-proximo');
             const filtroColaborador = document.getElementById('filtro-colaborador');
+            const tabAtrasadas = document.getElementById('tab-atrasadas');
             const tabConcluidas = document.getElementById('tab-concluidas');
             const btnFoco = document.getElementById('btn-foco');
+            const btnAnual = document.getElementById('btn-periodo-anual');
 
             if (labelPeriodo) labelPeriodo.innerText = focoAtivo ? 'TODOS OS MESES • MINHAS AÇÕES ABERTAS' : periodo;
+            if (btnAnual) {
+                btnAnual.classList.toggle('active', !focoAtivo && estadoApp.periodoAnual);
+                btnAnual.disabled = focoAtivo;
+                btnAnual.setAttribute('aria-pressed', (!focoAtivo && estadoApp.periodoAnual) ? 'true' : 'false');
+                btnAnual.title = estadoApp.periodoAnual ? `Exibindo todo o ano de ${String(estadoApp.mesAno).slice(0,4)}` : 'Exibir o ano inteiro';
+            }
             navPeriodo?.classList.toggle('focus-mode', focoAtivo);
             if (btnAnterior) btnAnterior.disabled = focoAtivo;
             if (btnProximo) btnProximo.disabled = focoAtivo;
             if (filtroColaborador) filtroColaborador.disabled = focoAtivo;
-            if (tabConcluidas) {
-                tabConcluidas.classList.toggle('disabled', focoAtivo);
-                tabConcluidas.setAttribute('aria-disabled', focoAtivo ? 'true' : 'false');
-            }
+            [tabAtrasadas, tabConcluidas].forEach(tab => {
+                if (!tab) return;
+                tab.classList.toggle('disabled', focoAtivo);
+                tab.setAttribute('aria-disabled', focoAtivo ? 'true' : 'false');
+            });
             if (btnFoco) {
                 btnFoco.classList.toggle('active', estadoApp.apenasMinhas);
                 btnFoco.innerHTML = estadoApp.apenasMinhas
@@ -2073,14 +2134,17 @@
             }
 
             document.getElementById('tab-pendentes')?.classList.toggle('active', estadoApp.abaAtiva === 'pendente');
+            document.getElementById('tab-atrasadas')?.classList.toggle('active', !focoAtivo && estadoApp.abaAtiva === 'atrasada');
             document.getElementById('tab-concluidas')?.classList.toggle('active', !focoAtivo && estadoApp.abaAtiva === 'concluida');
 
             const subtitulo = document.getElementById('metricas-subtitulo');
-            if(subtitulo) subtitulo.innerText = `Resumo operacional de ${periodo.toLowerCase()} por macro-área.`;
+            if(subtitulo) subtitulo.innerText = estadoApp.periodoAnual
+                ? `Resumo operacional do ano de ${String(estadoApp.mesAno).slice(0,4)} por macro-área.`
+                : `Resumo operacional de ${periodo.toLowerCase()} por macro-área.`;
         }
 
         function mudarAba(aba) {
-            if (modoMinhasAcoesGlobalAtivo() && aba === 'concluida') return;
+            if (modoMinhasAcoesGlobalAtivo() && (aba === 'concluida' || aba === 'atrasada')) return;
             estadoApp.abaAtiva = aba;
             atualizarUIControlesTemporais();
             renderizarUI();
@@ -2301,13 +2365,54 @@
                     !ativoMacro
                     && (ativoSubareaLegado === subNormalizada || ativoSubareaAtual === subNormalizada);
 
-                const correspondeLegadoLixadeira =
-                    macroNormalizada === 'lixadeira'
-                    && (subNormalizada === 'lixa' || subNormalizada === 'lixadeira')
-                    && (ativoMacro === 'final de linha' || ativoMacro === 'final linha')
-                    && ativoSubareaLegado === 'lixadeira';
+                // Compatibilidade entre a hierarquia atual do Planner e a hierarquia
+                // utilizada pelo Gestão de Ativos. Mantém a organização visual do
+                // Planner, mas localiza os equipamentos na macroárea original.
+                const macrosLegadasPorSubarea = {
+                    'classificador': ['preparacao'],
+                    'desfibrador': ['preparacao'],
+                    'encolagem': ['preparacao'],
+                    'lavador': ['preparacao'],
+                    'secador': ['preparacao'],
+                    'silos': ['utilidades'],
+                    'planta de energia': ['utilidades'],
+                    'patio geral': ['patio'],
+                    'serra': ['final de linha', 'final linha'],
+                    'embalagem': ['final de linha', 'final linha'],
+                    'estoque': ['final de linha', 'final linha'],
+                    'lixa': ['final de linha', 'final linha'],
+                    'lixadeira': ['final de linha', 'final linha']
+                };
 
-                return correspondeEstruturaAtual || correspondeSemMacro || correspondeLegadoLixadeira;
+                const aliasesSubarea = {
+                    'lixa': ['lixa', 'lixadeira'],
+                    'lixadeira': ['lixa', 'lixadeira'],
+                    'patio': ['patio', 'patio geral'],
+                    'patio geral': ['patio', 'patio geral'],
+                    'planta energia': ['planta energia', 'planta de energia'],
+                    'planta de energia': ['planta energia', 'planta de energia']
+                };
+
+                const subareasEquivalentes = aliasesSubarea[subNormalizada] || [subNormalizada];
+                const macroLegadas = [...new Set(
+                    subareasEquivalentes.flatMap(sa => macrosLegadasPorSubarea[sa] || [])
+                )];
+                const ativoEmSubareaEquivalente =
+                    subareasEquivalentes.includes(ativoSubareaLegado)
+                    || subareasEquivalentes.includes(ativoSubareaAtual);
+
+                const correspondeEstruturaLegada =
+                    ativoEmSubareaEquivalente
+                    && macroLegadas.includes(ativoMacro);
+
+                // Bases antigas podem não possuir macroArea preenchida. Nesses casos,
+                // a subárea continua sendo suficiente para identificar o equipamento.
+                const correspondeLegadoSemMacro = !ativoMacro && ativoEmSubareaEquivalente;
+
+                return correspondeEstruturaAtual
+                    || correspondeSemMacro
+                    || correspondeEstruturaLegada
+                    || correspondeLegadoSemMacro;
             });
             ativosFiltrados.sort((a,b) => String(a.tag).localeCompare(String(b.tag)));
 
@@ -2324,8 +2429,17 @@
 
             if (!isDadosCarregados) renderizarUI(); 
 
-            let qFalhas = window.query(window.collection(window.db, "planner_falhas"), window.where("mesAno", "==", estadoApp.mesAno));
-            if (estadoApp.area) qFalhas = window.query(window.collection(window.db, "planner_falhas"), window.where("mesAno", "==", estadoApp.mesAno), window.where("area", "==", estadoApp.area));
+            const anoSelecionado = String(estadoApp.mesAno || '').slice(0,4);
+            let qFalhas;
+            if (estadoApp.periodoAnual) {
+                qFalhas = window.query(
+                    window.collection(window.db, "planner_falhas"),
+                    window.where("mesAno", ">=", `${anoSelecionado}-01`),
+                    window.where("mesAno", "<=", `${anoSelecionado}-12`)
+                );
+            } else {
+                qFalhas = window.query(window.collection(window.db, "planner_falhas"), window.where("mesAno", "==", estadoApp.mesAno));
+            }
 
             unsubscribeFalhas = window.onSnapshot(qFalhas, (snapshot) => {
                 listaFalhasMemoria = [];
@@ -2334,7 +2448,16 @@
                 if(estadoApp.view === 'falhas') renderizarUI(); else renderizarMetricas();
             });
 
-            let qAcoes = window.query(window.collection(window.db, "planner_acoes"), window.where("mesAno", "==", estadoApp.mesAno));
+            let qAcoes;
+            if (estadoApp.periodoAnual) {
+                qAcoes = window.query(
+                    window.collection(window.db, "planner_acoes"),
+                    window.where("mesAno", ">=", `${anoSelecionado}-01`),
+                    window.where("mesAno", "<=", `${anoSelecionado}-12`)
+                );
+            } else {
+                qAcoes = window.query(window.collection(window.db, "planner_acoes"), window.where("mesAno", "==", estadoApp.mesAno));
+            }
             unsubscribeAcoes = window.onSnapshot(qAcoes, (snapshot) => {
                 listaAcoesMemoria = [];
                 snapshot.forEach(docSnap => listaAcoesMemoria.push({ id: docSnap.id, ...docSnap.data() }));
@@ -2409,11 +2532,15 @@
             const itensPendentes = modoFoco
                 ? obterItensSelecaoAtual()
                 : montarItensComSelecao(falhasFonte, acoesFonte, { statusFalha: 'pendente' });
+            const itensAtrasados = modoFoco
+                ? []
+                : montarItensComSelecao(falhasFonte, acoesFonte, { statusFalha: '', somenteAcoesAtrasadas: true, exigirAcoes: true });
             const itensConcluidos = modoFoco
                 ? []
                 : montarItensComSelecao(falhasFonte, acoesFonte, { statusFalha: 'concluida' });
 
             document.getElementById('cont-pendentes').innerText = itensPendentes.length;
+            document.getElementById('cont-atrasadas').innerText = itensAtrasados.length;
             document.getElementById('cont-concluidas').innerText = itensConcluidos.length;
 
             const itensExibidos = obterItensSelecaoAtual();
@@ -2495,8 +2622,9 @@
                 const mesChipHtml = modoFoco && mesFalha
                     ? `<span class="falha-mes-chip"><i class="fas fa-calendar-days"></i>${escapeHtml(lerTextoMesAno(mesFalha))}</span>`
                     : '';
-                const statusTextoFalha = modoFoco ? 'Minhas ações abertas' : (falhaConcluida ? 'Concluída' : 'Pendente');
-                const statusIconeFalha = modoFoco ? 'fa-user-clock' : (falhaConcluida ? 'fa-circle-check' : 'fa-clock');
+                const visualizandoAtrasadas = !modoFoco && estadoApp.abaAtiva === 'atrasada';
+                const statusTextoFalha = modoFoco ? 'Minhas ações abertas' : (visualizandoAtrasadas ? 'Com ação atrasada' : (falhaConcluida ? 'Concluída' : 'Pendente'));
+                const statusIconeFalha = modoFoco ? 'fa-user-clock' : (visualizandoAtrasadas ? 'fa-triangle-exclamation' : (falhaConcluida ? 'fa-circle-check' : 'fa-clock'));
                 const progressoHtml = modoFoco
                     ? `<div class="focus-open-summary"><i class="fas fa-user-clock"></i><span><strong>${tot}</strong> ${tot === 1 ? 'ação aberta atribuída a você' : 'ações abertas atribuídas a você'}</span></div>`
                     : `<div class="progress-wrap">
@@ -2545,12 +2673,15 @@
             const concluidas = acoes.filter(acaoEstaConcluida).length;
             const abertas = acoes.filter(acaoNaoConcluida).length;
             const andamento = acoes.filter(acaoEstaEmAndamento).length;
+            const atrasadas = acoes.filter(acaoEstaAtrasada).length;
             const percentual = acoes.length ? Math.round((concluidas / acoes.length) * 100) : 0;
             const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
             set('sidebar-metric-falhas', itens.length);
             set('sidebar-metric-acoes', acoes.length);
             set('sidebar-metric-abertas', abertas);
             set('sidebar-metric-andamento', andamento);
+            set('sidebar-metric-atrasadas', atrasadas);
+            set('sidebar-metric-concluidas', concluidas);
             set('sidebar-metric-percent', percentual + '%');
             set('sidebar-metric-caption', `${concluidas} de ${acoes.length} ações concluídas`);
             const barra=document.getElementById('sidebar-metric-progress'); if(barra) barra.style.width=percentual+'%';
@@ -3171,8 +3302,24 @@
                 });
                 selAreaWA.value = Object.keys(hierarquiaAreas).includes(estadoApp.area) ? estadoApp.area : '';
             }
-            document.getElementById('wa-filtro').value = 'tudo';
-            document.getElementById('wa-incluir-anteriores').value = 'nao';
+            const selColaboradorWA = document.getElementById('wa-colaborador');
+            if (selColaboradorWA) {
+                selColaboradorWA.innerHTML = '<option value="">Toda a equipe</option>';
+                listaUsuariosIAM.forEach(usuario => {
+                    selColaboradorWA.innerHTML += `<option value="${escapeHtml(usuario.id)}">${escapeHtml(usuario.nome)}</option>`;
+                });
+                selColaboradorWA.value = '';
+                selColaboradorWA.disabled = Boolean(estadoApp.apenasMinhas);
+                if (estadoApp.apenasMinhas && usuarioAtivo?.email) {
+                    if (![...selColaboradorWA.options].some(opcao => opcao.value === usuarioAtivo.email)) {
+                        selColaboradorWA.innerHTML += `<option value="${escapeHtml(usuarioAtivo.email)}">${escapeHtml(usuarioAtivo.nome || 'Usuário conectado')}</option>`;
+                    }
+                    selColaboradorWA.value = usuarioAtivo.email;
+                }
+            }
+            if (selAreaWA) selAreaWA.value = '';
+            document.getElementById('wa-filtro').value = 'pendente';
+            document.getElementById('wa-incluir-anteriores').value = 'sim';
             const btnPdfWA = document.getElementById('wa-btn-pdf');
             if (btnPdfWA) btnPdfWA.style.display = (usuarioAtivo?.nivel === 'master' || usuarioAtivo?.nivel === 'senior') ? 'flex' : 'none';
             atualizarOpcoesPendenciasWA();
@@ -3182,7 +3329,7 @@
         function atualizarOpcoesPendenciasWA(){
             const wrap = document.getElementById('wa-anteriores-wrap');
             const filtro = document.getElementById('wa-filtro').value;
-            const mostrarAnteriores = filtro === 'pendente' && !estadoApp.apenasMinhas;
+            const mostrarAnteriores = (filtro === 'pendente' || filtro === 'atrasada') && !estadoApp.apenasMinhas;
             if(wrap) wrap.style.display = mostrarAnteriores ? 'block' : 'none';
             if(!mostrarAnteriores) document.getElementById('wa-incluir-anteriores').value = 'nao';
             atualizarPreviewWA();
@@ -3322,75 +3469,111 @@
             return txt;
         }
 
-        async function gerarTextoRelatorio(){
-            const filtro = document.getElementById('wa-filtro').value;
-            const incluirAnteriores = document.getElementById('wa-incluir-anteriores').value === 'sim';
+        function obterNomeColaboradorWA(colaborador){
+            if (!colaborador) return '';
+            if (colaborador === usuarioAtivo?.email) return usuarioAtivo?.nome || 'Usuário conectado';
+            return listaUsuariosIAM.find(usuario => usuario.id === colaborador)?.nome || 'Colaborador selecionado';
+        }
+
+        function filtrarItensSomenteAtrasadas(itens, colaborador){
+            return (Array.isArray(itens) ? itens : []).map(item => {
+                let acoes = Array.isArray(item.acoes) ? item.acoes.filter(acaoEstaAtrasada) : [];
+                if (colaborador) acoes = acoes.filter(acao => acaoPossuiResponsavel(acao, colaborador));
+                return { ...item, acoes: ordenarPorDataHoraCriacao(acoes), semAcoesCadastradas: false };
+            }).filter(item => item.acoes.length > 0);
+        }
+
+        async function montarSelecaoCompartilhamentoWA(){
+            const filtro = document.getElementById('wa-filtro')?.value || 'pendente';
+            const incluirAnteriores = document.getElementById('wa-incluir-anteriores')?.value === 'sim';
             const modoMinhas = Boolean(estadoApp.apenasMinhas);
             const area = document.getElementById('wa-macro-area')?.value || '';
-            const colaborador = modoMinhas ? (usuarioAtivo?.email || '') : (estadoApp.colaborador || '');
+            const colaborador = modoMinhas
+                ? (usuarioAtivo?.email || '')
+                : (document.getElementById('wa-colaborador')?.value || '');
             const busca = estadoApp.busca || '';
             const possuiFiltroPessoa = Boolean(colaborador);
+            const somenteNaoConcluidas = filtro === 'pendente' || filtro === 'atrasada';
+            const statusRelatorio = filtro === 'concluida' ? 'concluida' : (somenteNaoConcluidas ? 'pendente' : '');
 
-            // A exportacao deve ser independente da aba visual Pendentes/Concluidas.
-            // O proprio seletor do relatorio define quais falhas entram.
-            const statusRelatorio = filtro === 'pendente' ? 'pendente' : (filtro === 'concluida' ? 'concluida' : '');
-            let itensBaseAtual = obterItensSelecaoAtual({ statusFalha: statusRelatorio });
-            if (area) itensBaseAtual = itensBaseAtual.filter(item => item.f?.area === area);
+            // O WhatsApp sempre parte explicitamente do mês selecionado, mesmo se a tela estiver no modo Anual.
+            const falhasAtuais = obterFalhasFonteRenderizacao();
+            const acoesAtuais = obterAcoesFonteRenderizacao();
+            let itensBaseAtual = montarItensComSelecao(falhasAtuais, acoesAtuais, {
+                apenasMinhas: false,
+                area,
+                colaborador,
+                busca,
+                statusFalha: statusRelatorio,
+                filtrarMes: true,
+                periodoAnual: false,
+                mesAno: estadoApp.mesAno,
+                somenteAcoesNaoConcluidas: false,
+                somenteAcoesAtrasadas: false,
+                exigirAcoes: false
+            });
 
-            let itensSelecionados = prepararItensWhatsApp(
-                itensBaseAtual,
-                obterAcoesFonteRenderizacao(),
-                {
-                    somenteAcoesNaoConcluidas: filtro === 'pendente',
-                    exigirAcoesSelecionadas: filtro === 'pendente' && possuiFiltroPessoa
-                }
-            );
+            let itensSelecionados = prepararItensWhatsApp(itensBaseAtual, acoesAtuais, {
+                somenteAcoesNaoConcluidas: somenteNaoConcluidas,
+                exigirAcoesSelecionadas: somenteNaoConcluidas && possuiFiltroPessoa
+            });
 
-            if (
-                filtro === 'pendente' &&
-                incluirAnteriores &&
-                !modoMinhas &&
-                estadoApp.abaAtiva === 'pendente'
-            ) {
-                try {
-                    const dados = await carregarPendenciasAnterioresWA();
-                    const itensAnterioresBase = montarItensComSelecao(dados.falhas, dados.acoes, {
-                        apenasMinhas: false,
-                        area,
-                        colaborador,
-                        busca,
-                        statusFalha: 'pendente',
-                        filtrarMes: false,
-                        mesAno: '',
-                        somenteAcoesNaoConcluidas: false,
-                        exigirAcoes: possuiFiltroPessoa
-                    });
+            // Para "Somente Atrasadas", exibimos exclusivamente as ações vencidas.
+            if (filtro === 'atrasada') itensSelecionados = filtrarItensSomenteAtrasadas(itensSelecionados, colaborador);
 
-                    const itensAnteriores = prepararItensWhatsApp(
-                        itensAnterioresBase,
-                        dados.acoes,
-                        {
-                            somenteAcoesNaoConcluidas: true,
-                            exigirAcoesSelecionadas: possuiFiltroPessoa
-                        }
-                    ).filter(item => {
-                        const mes = obterMesFalha(item.f);
-                        return mes && mes < estadoApp.mesAno;
-                    });
+            // Meses anteriores = mês vigente + anteriores. Não depende da aba visual atual.
+            if (somenteNaoConcluidas && incluirAnteriores && !modoMinhas) {
+                const dados = await carregarPendenciasAnterioresWA();
+                const itensAnterioresBase = montarItensComSelecao(dados.falhas, dados.acoes, {
+                    apenasMinhas: false,
+                    area,
+                    colaborador,
+                    busca,
+                    statusFalha: 'pendente',
+                    filtrarMes: false,
+                    periodoAnual: false,
+                    mesAno: '',
+                    somenteAcoesNaoConcluidas: false,
+                    somenteAcoesAtrasadas: false,
+                    exigirAcoes: false
+                });
+                let itensAnteriores = prepararItensWhatsApp(itensAnterioresBase, dados.acoes, {
+                    somenteAcoesNaoConcluidas: true,
+                    exigirAcoesSelecionadas: possuiFiltroPessoa
+                }).filter(item => {
+                    const mes = obterMesFalha(item.f);
+                    return mes && mes < estadoApp.mesAno;
+                });
+                if (filtro === 'atrasada') itensAnteriores = filtrarItensSomenteAtrasadas(itensAnteriores, colaborador);
 
-                    const itensPorId = new Map();
-                    [...itensSelecionados, ...itensAnteriores].forEach(item => itensPorId.set(item.f.id, item));
-                    itensSelecionados = Array.from(itensPorId.values()).sort(compararPorDataHoraCriacao);
-                } catch (erro) {
-                    console.error('Erro ao carregar pendências anteriores para WhatsApp:', erro);
-                    if (!itensSelecionados.length) return 'Falha ao carregar as pendências anteriores.';
-                }
+                const itensPorId = new Map();
+                [...itensSelecionados, ...itensAnteriores].forEach(item => itensPorId.set(item.f.id, item));
+                itensSelecionados = Array.from(itensPorId.values()).sort(compararPorDataHoraCriacao);
             }
 
+            const periodoRelatorio = modoMinhas
+                ? 'Todos os meses'
+                : (somenteNaoConcluidas && incluirAnteriores
+                    ? `Todos os meses até ${lerTextoMesAno(estadoApp.mesAno)}`
+                    : lerTextoMesAno(estadoApp.mesAno));
+
+            return { itensSelecionados, filtro, incluirAnteriores, modoMinhas, area, colaborador, busca, periodoRelatorio };
+        }
+
+        async function gerarTextoRelatorio(){
+            let selecao;
+            try {
+                selecao = await montarSelecaoCompartilhamentoWA();
+            } catch (erro) {
+                console.error('Erro ao montar seleção do WhatsApp:', erro);
+                return 'Falha ao carregar as pendências para o relatório.';
+            }
+
+            const { itensSelecionados, filtro, modoMinhas, area, colaborador, busca, periodoRelatorio } = selecao;
             if (!itensSelecionados.length) {
-                return filtro === 'pendente'
-                    ? 'Nenhuma pendência encontrada para a seleção atual.'
-                    : 'Nenhum registro encontrado para a seleção atual.';
+                if (filtro === 'atrasada') return 'Nenhuma ação atrasada encontrada para a seleção atual.';
+                if (filtro === 'pendente') return 'Nenhuma pendência encontrada para a seleção atual.';
+                return 'Nenhum registro encontrado para a seleção atual.';
             }
 
             const grupos = agruparPorMes(itensSelecionados);
@@ -3399,94 +3582,35 @@
                 if (b === 'Sem mês') return -1;
                 return b.localeCompare(a);
             });
-
             const totalFalhas = itensSelecionados.length;
             const totalAcoes = itensSelecionados.reduce((soma, item) => soma + item.acoes.length, 0);
             const falhasSemPlano = filtro === 'pendente'
                 ? itensSelecionados.filter(item => item.semAcoesCadastradas).length
                 : 0;
-            const nomeColaborador = obterNomeColaboradorSelecionado();
-            const periodoRelatorio = modoMinhas
-                ? 'Todos os meses'
-                : (filtro === 'pendente' && incluirAnteriores
-                    ? `Todos os meses até ${lerTextoMesAno(estadoApp.mesAno)}`
-                    : lerTextoMesAno(estadoApp.mesAno));
+            const nomeColaborador = obterNomeColaboradorWA(colaborador);
 
             let txt = `*Ações e Falhas DEXCO*\n`;
             txt += `📅 ${periodoRelatorio}\n`;
             const tituloSituacao = filtro === 'pendente'
                 ? 'Falhas pendentes'
-                : (filtro === 'concluida' ? 'Falhas concluídas' : 'Pendentes e concluídas');
+                : (filtro === 'atrasada' ? 'Ações atrasadas' : (filtro === 'concluida' ? 'Falhas concluídas' : 'Pendentes e concluídas'));
             txt += `📌 ${modoMinhas ? 'Minhas ações não concluídas' : tituloSituacao}\n`;
             txt += `\n📍 *${String(area || 'TODAS AS ÁREAS').toUpperCase()}*\n`;
             if (nomeColaborador) txt += `👤 Responsável: ${nomeColaborador}\n`;
             if (busca) txt += `🔎 Busca: ${busca}\n`;
             const rotuloFalhas = totalFalhas === 1 ? 'Falha' : 'Falhas';
             const rotuloAcoes = totalAcoes === 1 ? 'Ação' : 'Ações';
-            txt += `📊 *Resumo:* ${totalFalhas} ${rotuloFalhas} | ${totalAcoes} ${rotuloAcoes}`;
-            txt += `\n`;
+            txt += `📊 *Resumo:* ${totalFalhas} ${rotuloFalhas} | ${totalAcoes} ${rotuloAcoes}\n`;
             if (falhasSemPlano > 0) {
-                const rotuloSemPlano = falhasSemPlano === 1
-                    ? 'falha ainda sem plano de ação'
-                    : 'falhas ainda sem plano de ação';
+                const rotuloSemPlano = falhasSemPlano === 1 ? 'falha ainda sem plano de ação' : 'falhas ainda sem plano de ação';
                 txt += `⚠️ ${falhasSemPlano} ${rotuloSemPlano}\n`;
             }
-
-            meses.forEach(mes => {
-                txt = anexarBlocoMesWhatsApp(txt, mes, grupos[mes], true);
-            });
-
+            meses.forEach(mes => { txt = anexarBlocoMesWhatsApp(txt, mes, grupos[mes], true); });
             return txt;
         }
 
         async function obterDadosRelatorioCompartilhado(){
-            const filtro = document.getElementById('wa-filtro')?.value || 'tudo';
-            const incluirAnteriores = document.getElementById('wa-incluir-anteriores')?.value === 'sim';
-            const modoMinhas = Boolean(estadoApp.apenasMinhas);
-            const area = document.getElementById('wa-macro-area')?.value || '';
-            const colaborador = modoMinhas ? (usuarioAtivo?.email || '') : (estadoApp.colaborador || '');
-            const busca = estadoApp.busca || '';
-            const possuiFiltroPessoa = Boolean(colaborador);
-
-            // A exportacao deve ser independente da aba visual Pendentes/Concluidas.
-            // O proprio seletor do relatorio define quais falhas entram.
-            const statusRelatorio = filtro === 'pendente' ? 'pendente' : (filtro === 'concluida' ? 'concluida' : '');
-            let itensBaseAtual = obterItensSelecaoAtual({ statusFalha: statusRelatorio });
-            if (area) itensBaseAtual = itensBaseAtual.filter(item => item.f?.area === area);
-
-            let itensSelecionados = prepararItensWhatsApp(
-                itensBaseAtual,
-                obterAcoesFonteRenderizacao(),
-                {
-                    somenteAcoesNaoConcluidas: filtro === 'pendente',
-                    exigirAcoesSelecionadas: filtro === 'pendente' && possuiFiltroPessoa
-                }
-            );
-
-            if (filtro === 'pendente' && incluirAnteriores && !modoMinhas && estadoApp.abaAtiva === 'pendente') {
-                const dados = await carregarPendenciasAnterioresWA();
-                const itensAnterioresBase = montarItensComSelecao(dados.falhas, dados.acoes, {
-                    apenasMinhas: false, area, colaborador, busca, statusFalha: 'pendente',
-                    filtrarMes: false, mesAno: '', somenteAcoesNaoConcluidas: false, exigirAcoes: possuiFiltroPessoa
-                });
-                const itensAnteriores = prepararItensWhatsApp(itensAnterioresBase, dados.acoes, {
-                    somenteAcoesNaoConcluidas: true, exigirAcoesSelecionadas: possuiFiltroPessoa
-                }).filter(item => {
-                    const mes = obterMesFalha(item.f);
-                    return mes && mes < estadoApp.mesAno;
-                });
-                const itensPorId = new Map();
-                [...itensSelecionados, ...itensAnteriores].forEach(item => itensPorId.set(item.f.id, item));
-                itensSelecionados = Array.from(itensPorId.values()).sort(compararPorDataHoraCriacao);
-            }
-
-            const periodoRelatorio = modoMinhas
-                ? 'Todos os meses'
-                : (filtro === 'pendente' && incluirAnteriores
-                    ? `Todos os meses até ${lerTextoMesAno(estadoApp.mesAno)}`
-                    : lerTextoMesAno(estadoApp.mesAno));
-
-            return { itensSelecionados, filtro, incluirAnteriores, modoMinhas, area, colaborador, busca, periodoRelatorio };
+            return await montarSelecaoCompartilhamentoWA();
         }
 
         async function atualizarPreviewWA() {
