@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dexco | Planner de Falhas</title>
-    <meta name="app-version" content="10.1.10">
+    <meta name="app-version" content="10.1.11">
     <!-- Layout Dexco V10: motor PDF responsivo com alinhamento e quebra dinâmica -->
     <meta name="application-name" content="Dexco Planner de Falhas">
     <meta name="apple-mobile-web-app-title" content="Planner Falhas">
@@ -110,6 +110,9 @@
         .main-content { padding: 0; padding-bottom:120px; flex: 1; overflow-y: auto; scroll-behavior: smooth;}
         .main-content-inner { padding: 18px; }
 
+        .tempo-add-mini{border:1px solid #d4d8dc;background:#f7f8fa;color:#444;border-radius:7px;width:25px;height:25px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin-left:5px;font-size:12px;vertical-align:middle}
+        .tempo-add-mini:hover{background:#e9edf1}
+        .tempo-detalhe{font-size:12px;color:#737b83;margin-top:4px;display:flex;gap:10px;flex-wrap:wrap}
         /* Controles Temporais e Filtros */
         .controls-panel { background: white; padding: 15px 20px; border-bottom: 1px solid #e0e6ed; }
         .time-nav { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.1rem; color: var(--dark); margin-bottom: 15px;}
@@ -1403,6 +1406,17 @@
                 <input type="number" id="falha-tempo" placeholder="120" required>
             </div>
             <button class="btn-block" onclick="salvarFalha()"><i class="fas fa-floppy-disk"></i> Salvar falha</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-tempo-adicional">
+        <div class="modal-content">
+            <div class="modal-header"><h3><i class="fas fa-stopwatch"></i> Adicionar tempo de parada</h3><button class="btn-close" onclick="fecharModal('modal-tempo-adicional')" aria-label="Fechar"><i class="fas fa-xmark"></i></button></div>
+            <input type="hidden" id="tempo-adicional-falha-id">
+            <div class="input-group"><label>Data da nova ocorrência</label><input type="date" id="tempo-adicional-data"></div>
+            <div class="input-group"><label>Tempo adicional (minutos)</label><input type="number" min="1" step="1" id="tempo-adicional-minutos" placeholder="Ex.: 15"></div>
+            <div id="tempo-adicional-resumo" style="margin:10px 0;color:#555;font-size:13px"></div>
+            <button class="btn-block" id="tempo-adicional-salvar" onclick="salvarTempoAdicional()"><i class="fas fa-plus"></i> Registrar ocorrência</button>
         </div>
     </div>
 
@@ -2809,8 +2823,10 @@
                             <div class="falha-title">${escapeHtml(falha.descricao)}</div>
                             <div class="falha-submeta">
                                 <span class="meta-pill"><i class="fas fa-calendar-day"></i> Falha em ${formatarDataBR(falha.dataFalha||falha.dataCriacao)}</span>
-                                <span class="meta-pill"><i class="fas fa-stopwatch"></i> ${escapeHtml(falha.tempoMinutos)} min parado</span>
+                                <span class="meta-pill"><i class="fas fa-stopwatch"></i> ${escapeHtml(String(falha.tempoMinutos ?? 0))} min parado <button class="tempo-add-mini" type="button" title="Adicionar ocorrência de parada" aria-label="Adicionar tempo de parada" onclick="event.stopPropagation();abrirModalTempoAdicional('${falha.id}')"><i class="fas fa-plus"></i></button></span>
+                                <span class="meta-pill"><i class="fas fa-repeat"></i> Frequência: ${obterOcorrenciasParada(falha).length}</span>
                             </div>
+                            <div class="tempo-detalhe"><i class="fas fa-clock-rotate-left"></i> ${obterOcorrenciasParada(falha).map(o => escapeHtml(String(o.minutos))).join(' + ')} min</div>
                         </div>
                     </div>
                     ${progressoHtml}
@@ -2957,6 +2973,49 @@
             }
         }
 
+        // Histórico de paradas: compatível com registros antigos sem array de ocorrências.
+        function obterOcorrenciasParada(falha){
+            if(Array.isArray(falha?.ocorrenciasParada) && falha.ocorrenciasParada.length){
+                return falha.ocorrenciasParada.filter(o=>Number.isFinite(Number(o.minutos)) && Number(o.minutos)>0);
+            }
+            const original=Number(falha?.tempoMinutos)||0;
+            return original>0?[{minutos:original,data:falha?.dataFalha||'',legado:true}]:[];
+        }
+        function abrirModalTempoAdicional(falhaId){
+            const falha=obterFalhaPorId(falhaId);
+            if(!falha)return showToast('Falha não encontrada.',true);
+            document.getElementById('tempo-adicional-falha-id').value=falhaId;
+            document.getElementById('tempo-adicional-data').value=dataHojeLocal();
+            document.getElementById('tempo-adicional-minutos').value='';
+            document.getElementById('tempo-adicional-resumo').textContent=`Tempo atual: ${Number(falha.tempoMinutos)||0} min • Frequência: ${obterOcorrenciasParada(falha).length}`;
+            abrirModal('modal-tempo-adicional');
+        }
+        async function salvarTempoAdicional(){
+            const id=document.getElementById('tempo-adicional-falha-id').value;
+            const minutos=Number(document.getElementById('tempo-adicional-minutos').value);
+            const data=document.getElementById('tempo-adicional-data').value;
+            if(!Number.isSafeInteger(minutos)||minutos<=0||minutos>1000000||!/^\d{4}-\d{2}-\d{2}$/.test(data))return showToast('Informe uma data e minutos válidos.',true);
+            const botao=document.getElementById('tempo-adicional-salvar');
+            if(botao.disabled)return;
+            botao.disabled=true;
+            try{
+                const ref=window.doc(window.db,'planner_falhas',id);
+                await window.runTransaction(window.db,async transaction=>{
+                    const snap=await transaction.get(ref);
+                    if(!snap.exists())throw new Error('Falha não encontrada');
+                    const atual=snap.data();
+                    const ocorrencias=obterOcorrenciasParada(atual);
+                    ocorrencias.push({minutos,data,registradoEm:new Date().toISOString(),usuarioNome:usuarioAtivo?.nome||'',usuarioEmail:usuarioAtivo?.email||''});
+                    const total=ocorrencias.reduce((s,o)=>s+Number(o.minutos),0);
+                    transaction.update(ref,{ocorrenciasParada:ocorrencias,tempoMinutos:total,frequencia:ocorrencias.length,atualizadoEm:new Date().toISOString()});
+                });
+                try{await registrarHistorico('falha_tempo_adicional',id,'', 'Adicionou tempo de parada',`${minutos} min em ${data}`);}catch(e){console.warn('Histórico não registrado:',e)}
+                fecharModal('modal-tempo-adicional');
+                showToast('Tempo adicional registrado.');
+            }catch(e){console.error(e);showToast('Não foi possível registrar o tempo.',true)}
+            finally{botao.disabled=false}
+        }
+
         // CRUD FALHAS & EXCLUSÃO
         function abrirModalFalha(){
             document.getElementById('falha-id').value=''; document.getElementById('falha-data').value=dataHojeLocal();
@@ -3086,6 +3145,28 @@
             }
 
             const dados={area,subarea,maquina,assetId,descricao:desc,tempoMinutos:parseInt(tempo,10),dataFalha,mesAno:dataFalha.slice(0,7),atualizadoEm:new Date().toISOString()};
+            if(!Number.isSafeInteger(dados.tempoMinutos)||dados.tempoMinutos<=0)return showToast('Informe tempo válido.',true);
+            if(id){
+                const anterior=obterFalhaPorId(id);
+                if(anterior){
+                    const ocorrencias=obterOcorrenciasParada(anterior);
+                    if(ocorrencias.length>1){
+                        const adicionais=ocorrencias.slice(1).reduce((s,o)=>s+Number(o.minutos),0);
+                        if(dados.tempoMinutos!==Number(anterior.tempoMinutos)){
+                            if(dados.tempoMinutos<=adicionais)return showToast('O total deve ser maior que a soma das ocorrências adicionais.',true);
+                            ocorrencias[0]={...ocorrencias[0],minutos:dados.tempoMinutos-adicionais};
+                            dados.ocorrenciasParada=ocorrencias;
+                        }
+                        dados.frequencia=ocorrencias.length;
+                    }else if(ocorrencias.length===1 && dados.tempoMinutos!==Number(anterior.tempoMinutos)){
+                        dados.ocorrenciasParada=[{...ocorrencias[0],minutos:dados.tempoMinutos}];
+                        dados.frequencia=1;
+                    }
+                }
+            }else{
+                dados.ocorrenciasParada=[{minutos:dados.tempoMinutos,data:dataFalha,registradoEm:new Date().toISOString(),usuarioNome:usuarioAtivo?.nome||'',usuarioEmail:usuarioAtivo?.email||''}];
+                dados.frequencia=1;
+            }
             try{
                 if(id){
                     const anterior = obterFalhaPorId(id);
